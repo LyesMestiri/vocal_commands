@@ -1,2 +1,6 @@
 wav/
 spectro_nb/
+wavTxt/
+missing.json
+settings.json
+names.py

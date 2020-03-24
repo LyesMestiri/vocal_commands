@@ -354,7 +354,7 @@ class MainWindow(qtw.QMainWindow):
         commands = {
             'yes': self.front, 'no': self.back, 'go':self.click, 'start':self.start, 'stop': self.flag,
             'right':self.right, 'left':self.left, 'up':self.up, 'down':self.down, 'on':self.on, 'off':self.off,
-            'unknown':0
+            'unknown':self.unknown
         }
         commands[command]()
         self.update()
@@ -430,7 +430,8 @@ class MainWindow(qtw.QMainWindow):
             self.update_status(STATUS_READY)
             self.reset_map()   
         else :
-            prinstopt('Status On Error')     
+            print('Status On Error')
+            print('Trying to turn on while status:', self.status)   
             
     def off(self) :
         if self.status == STATUS_PLAYING:

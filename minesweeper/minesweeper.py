@@ -353,7 +353,8 @@ class MainWindow(qtw.QMainWindow):
         print(command)
         commands = {
             'yes': self.front, 'no': self.back, 'go':self.click, 'start':self.start, 'stop': self.flag,
-            'right':self.right, 'left':self.left, 'up':self.up, 'down':self.down, 'on':self.on, 'oof':self.off
+            'right':self.right, 'left':self.left, 'up':self.up, 'down':self.down, 'on':self.on, 'off':self.off,
+            'unknown':0
         }
         commands[command]()
         self.update()
@@ -424,14 +425,14 @@ class MainWindow(qtw.QMainWindow):
             self.x = self.b_size-1
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = True
 
-    def on() :
+    def on(self) :
         if self.status == STATUS_FAILED:
             self.update_status(STATUS_READY)
             self.reset_map()   
         else :
-            print('Status On Error')     
+            prinstopt('Status On Error')     
             
-    def off() :
+    def off(self) :
         if self.status == STATUS_PLAYING:
             self.update_status(STATUS_FAILED)
             self.reveal_map()
@@ -443,6 +444,9 @@ class MainWindow(qtw.QMainWindow):
             self.status = STATUS_PAUSED
         elif self.status == STATUS_PAUSED :
             self.status = STATUS_PLAYING
+            
+    def unknown(self) :
+        pass
 
     def closeEvent(self, close_ev):
         super().closeEvent(close_ev)

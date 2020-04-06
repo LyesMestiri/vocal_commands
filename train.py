@@ -8,7 +8,7 @@ from tensorflow.keras.callbacks import TensorBoard
 import random
 
 SHAPES = (129, 124)
-classes = ["no", "on", "go", "up", "stop", "off", "left", "right", "down", "yes"]
+classes = ["<UNK>","no", "on", "go", "up", "stop", "off", "left", "right", "down", "yes"]
 
 def load_data(path, nb_classes):
     images = []
@@ -17,8 +17,11 @@ def load_data(path, nb_classes):
     same = 0
     ims = glob.glob(path + '/*.png')
     random.shuffle(ims)
+    nb_unk = 0
     for im in ims:
-        if im.split('label')[1].split('_')[0] not in ['0']:
+        if nb_unk<3100 or im.split('label')[1].split('_')[0] not in ['0']:
+            if im.split('label')[1].split('_')[0] in ['0']:
+                nb_unk += 1
             image = cv2.imread(im, 0)
             if image.shape[0] != 129:
                 print("SHAPE0:", image.shape[0], im)
@@ -30,7 +33,7 @@ def load_data(path, nb_classes):
                 img = np.asarray(cv2.imread(im, 0))
                 images.append(img)
                 lab = np.zeros((nb_classes,), dtype=int)
-                lab[int(im.split('label')[1].split('_')[0])-1] = 1
+                lab[int(im.split('label')[1].split('_')[0])] = 1
                 labels.append(lab)
 
                 #print(lab, im)
@@ -53,29 +56,30 @@ def load_data(path, nb_classes):
 
 
 
-train_images, train_labels, test_images, test_labels = load_data('spectro_nb', 10)
+train_images, train_labels, test_images, test_labels = load_data('spectro_nb', 11)
 
 model = Sequential()
 
-model.add(Conv2D(input_shape=(129, 124, 1),filters=64, kernel_size=(11,11), activation='relu'))
+model.add(Conv2D(input_shape=(129, 124, 1),filters=34, kernel_size=(11,11), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid'))
 model.add(Dropout(rate=0.15))
-model.add(Conv2D(filters=42, kernel_size=(11,11), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2)))
-model.add(Conv2D(filters=22, kernel_size=(9,9), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2))) 
+model.add(Conv2D(filters=22, kernel_size=(11,11), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid'))
+model.add(Dropout(rate=0.15))
 model.add(Flatten())
 model.add(Dense(256, activation='relu'))
 model.add(Dropout(rate=0.10))
+model.add(Dense(130, activation='relu'))
 model.add(Dense(84, activation='relu'))
 model.add(Dropout(rate=0.15))
-model.add(Dense(10, activation='softmax'))
+model.add(Dense(54, activation='relu'))
+model.add(Dense(11, activation='softmax'))
 
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
 model.summary()
 
-history = model.fit(train_images, train_labels, batch_size=64, epochs=40, validation_split=0.2)
+history = model.fit(train_images, train_labels, batch_size=64, epochs=20, validation_split=0.2)
 
 loss, accuracy = model.evaluate(x=test_images, y=test_labels, verbose=0)
 print("Données de test - Perte: %2.2f - Précision: %2.2f" %(loss, 100*accuracy))

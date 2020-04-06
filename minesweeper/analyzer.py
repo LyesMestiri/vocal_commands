@@ -7,7 +7,7 @@ import copy as cp
 from tensorflow import keras
 import pylab
 from PIL import Image
-import cv2
+# import cv2
 
 
 MODELS = ['78p_all_unk', '80p_prop_unk', '81p_no_unk', '83p_no_unk', '84p_no_unk', '85p_no_unk']

@@ -23,6 +23,7 @@ def get_wav_info(wav):
 #Fait passer les sons dans le réseau et renvoies la fonction associée
 def network(sound) :
     sound_info, frame_rate = get_wav_info(sound)
+    
     un,d,t,im = pylab.specgram(sound_info, Fs=frame_rate)
     im = Image.fromarray(un)
     if im.mode != 'RGB':
@@ -51,15 +52,16 @@ class Analyzer(Thread):
             read_buffer = b'NOT EMPTY'
             while read_buffer != b'':
                 read_buffer = f.read(32000) # bytes
-                # print(len(read_buffer))
-                
-                ret = network(read_buffer)
+                if len(read_buffer)==32000 :
+                    ret = network(read_buffer)
                 self._respond(ret)
 
                 total_audio += read_buffer
                 
-    def getOutput(outputs) :
-        return 0
+    ##TROUVER UN MEILLEUR PARSING
+                
+    def getOutput(self, outputs) :
+        return outputs
     #     counts = {x:l.count(x) for x in set(outputs))
     #     if count[0] > 4:
     #         return 0 

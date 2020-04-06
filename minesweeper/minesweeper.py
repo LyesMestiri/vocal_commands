@@ -178,6 +178,7 @@ class MainWindow(qtw.QMainWindow):
         self.mines.setText("%03d" % self.n_mines)
         self.clock.setText("000")
 
+        #Principal Button
         self.button = qtw.QPushButton()
         self.button.setFixedSize(qtc.QSize(32, 32))
         self.button.setIconSize(qtc.QSize(32, 32))
@@ -185,20 +186,32 @@ class MainWindow(qtw.QMainWindow):
         self.button.setFlat(True)
 
         self.button.pressed.connect(self.on)
+        
+        #Record button
+        self.record_button = qtw.QPushButton()
+        self.record_button.setFixedSize(qtc.QSize(32, 32))
+        self.record_button.setIconSize(qtc.QSize(32, 32))
+        self.record_button.setIcon(qtg.QIcon("./images/dot.png"))
+        self.record_button.setFlat(True)
 
+        self.record_button.pressed.connect(self.getSound) #record
+
+        #BOMB
         l = qtw.QLabel()
         l.setPixmap(qtg.QPixmap.fromImage(IMG_BOMB))
         l.setAlignment(qtc.Qt.AlignRight | qtc.Qt.AlignVCenter)
-        hb.addWidget(l)
+        hb.addWidget(l) #
 
         hb.addWidget(self.mines)
         hb.addWidget(self.button)
+        hb.addWidget(self.record_button)
         hb.addWidget(self.clock)
 
+        #CLOCK
         l = qtw.QLabel()
         l.setPixmap(qtg.QPixmap.fromImage(IMG_CLOCK))
         l.setAlignment(qtc.Qt.AlignLeft | qtc.Qt.AlignVCenter)
-        hb.addWidget(l)
+        hb.addWidget(l) #
 
         vb = qtw.QVBoxLayout()
         vb.addLayout(hb)
@@ -233,16 +246,19 @@ class MainWindow(qtw.QMainWindow):
         self.analyzer.start()
 
         self.timer = qtc.QTimer(self)
-        self.timer.setInterval(10)
+        self.timer.setSingleShot(True)
+        self.timer.setInterval(1000)
         self.timer.timeout.connect(self.get_network_results)
 
         self.show()
         self.timer.start()
         self.recorder.record()
+        
+    def getSound(self) :
+        self.timer.start()
 
     def get_network_results(self):
         resp = self.analyzer.read_response()
-
         if resp is None:
             return
         cmd = resp[0]

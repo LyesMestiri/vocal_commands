@@ -4,10 +4,6 @@ wavTxt/
 missing.json
 settings.json
 names.py
-78p_all_unk.h5
-80p_prop_unk.h5
-81p_no_unk.h5
-83p_no_unk.h5
-84p_no_unk.h5
-85p_no_unk.h5
+old/
+tests_Felix/
 *.pyc

@@ -30,21 +30,22 @@ def get_wav_info(wav_file):
 
 fs = 8000  # Sample rate
 seconds = 1  # Duration of recording
-model = keras.models.load_model("80p_prop_unk.h5")
+model = keras.models.load_model("85p_no_unk.h5")
 
 while 1:
     inp = input("Type 'r' to record: ")
-    if inp=="r":
+    if inp!="idk":
         myrecording = sd.rec(np.int16(seconds * fs), samplerate=fs, channels=2, dtype='int16')
         sd.wait()  # Wait until recording is finished
-        write('output.wav', fs, myrecording)  # Save as WAV file
-        im = graph_spectrogram('output.wav')
+        file = 'tests_Felix/' + inp + '.wav'
+        write(file, fs, myrecording)  # Save as WAV file
+        im = graph_spectrogram(file)
         im = np.array(im)
         im = im.reshape((1, 129, 124, 1))
         # output = rd.choice(np.identity(11)[2:]) #ligne a supprimer une fois le réseau raccordé
         output = model.predict(im) #sort un vecteur de probas de taille 11
-        classes = ["<UNK>","no", "on", "go", "up", "stop", "off", "left", "right", "down", "yes"]
+        classes = ["no", "on", "go", "up", "stop", "off", "left", "right", "down", "yes"]
         #commands = [('unknown',), ('no',), ('on',), ('go',), ('up', ), ('stop',), ('off', ), ('left',), ('right', ), ('down', ), ('yes', )]
         out = classes[np.argmax(output)]
         print("\n" + out + "\n")
-        inp = "no"
+        inp = "idk"

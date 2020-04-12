@@ -20,7 +20,7 @@ Installer la librairie PortAudio
 |Down|Aller en bas |
 |Yes| Aller au bout |
 |No| Revenir au début |
-|Go| Découvrire la case |
+|Go| Découvrir la case |
 |Stop| Poser un drapeau |
 |Start| Mettre en pause/Reprendre le timer |
 |On| Commencer une partie |

@@ -196,7 +196,7 @@ class MainWindow(qtw.QMainWindow):
         self.record_button.setIcon(qtg.QIcon("./images/dot.png"))
         self.record_button.setFlat(True)
 
-        self.record_button.pressed.connect(self.getSound) #record
+        self.record_button.pressed.connect(self.get_network_results) #record
 
         #BOMB
         l = qtw.QLabel()
@@ -231,47 +231,16 @@ class MainWindow(qtw.QMainWindow):
         self.reset_map()
         self.update_status(STATUS_READY)
         
-        #NOUVEAU : Recorder
-        self.recorder = qtmm.QAudioRecorder()
-    
-        self.recorder.setAudioInput('default:') #NO EXCEPTION ! -> write right input
-        sample_path = qtc.QDir.home().filePath('Documents/Cours/ING3/Projet/vocalCommand/vocal_commands/minesweeper/enregistrements/enr.wav')#'./enregistrements/enr.wav'
-        try :
-            unlink(sample_path)
-        except:
-            pass
-        mkfifo(sample_path)
-        self.recorder.setOutputLocation(qtc.QUrl.fromLocalFile(sample_path))
-        self.recorder.setContainerFormat('audio/x-wav')
-
-        # self.analyzer = Analyzer()
-        # self.analyzer.start()
-        # Sample rate, Duration of recording, model
         self.analyzer = {'fs':16000, 'seconds':1}
         self.model = load_model("models/86p_no_unk.h5")
         
-        self.timer = qtc.QTimer(self)
-        self.timer.setSingleShot(True)
-        self.timer.setInterval(1000)
-        self.timer.timeout.connect(self.get_network_results)
-
         self.show()
-        self.timer.start()
-        # self.recorder.record()
-        
-    def getSound(self) :
-        self.timer.start()
 
     def get_network_results(self):
-        # resp = self.analyzer.read_response()
-        # if resp is None:
-        #     return
-        # cmd = resp[0]
+        print('recording...\n')
         wavFile = sd.rec(self.analyzer['seconds'] * self.analyzer['fs'], samplerate=self.analyzer['fs'], channels=1, dtype='int16')
         sd.wait()
-    
-        cmd = prediction(wavFile, self.model)
-
+        cmd = prediction(wavFile, self.model, self.analyzer['fs'])
         self.assign(cmd)
 
     def init_map(self):
@@ -377,8 +346,8 @@ class MainWindow(qtw.QMainWindow):
     def assign(self, command):
         print(command)
         commands = {
-            'yes': self.front, 'no': self.back, 'go':self.click, 'start':self.start, 'stop': self.flag,
-            'right':self.right, 'left':self.left, 'up':self.up, 'down':self.down, 'on':self.on, 'off':self.off,
+            'yes': self.front, 'no': self.back, 'right':self.right, 'left':self.left, 'up':self.up, 'down':self.down,
+            'go':self.click, 'stop': self.flag, 'start':self.start, 'on':self.on, 'off':self.off,
             'unknown':self.unknown
         }
         commands[command]()
@@ -425,11 +394,11 @@ class MainWindow(qtw.QMainWindow):
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = True
         elif self.speed == 2 : #left
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = False
-            self.y = 0
+            self.x = 0
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = True
         elif self.speed == 3 : #up
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = False
-            self.x = 0
+            self.y = 0
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = True
 
     def back(self) :
@@ -443,11 +412,11 @@ class MainWindow(qtw.QMainWindow):
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = True
         elif self.speed == 2 : #left
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = False
-            self.y = self.b_size-1
+            self.x = self.b_size-1
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = True
         elif self.speed == 3 : #up
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = False
-            self.x = self.b_size-1
+            self.y = self.b_size-1
             self.grid.itemAtPosition(self.y, self.x).widget().is_selected = True
 
     def on(self) :
@@ -455,15 +424,14 @@ class MainWindow(qtw.QMainWindow):
             self.update_status(STATUS_READY)
             self.reset_map()   
         else :
-            print('Status On Error')
-            print('Trying to turn on while status:', self.status)   
+            print('Error : Status already On')      
             
     def off(self) :
         if self.status == STATUS_PLAYING:
             self.update_status(STATUS_FAILED)
             self.reveal_map()
         else :
-            print('Status Off Error')   
+            print('Error : Status already Off')   
             
     def start(self):
         if self.status == STATUS_PLAYING :
@@ -480,5 +448,4 @@ class MainWindow(qtw.QMainWindow):
 if __name__ == '__main__':
     app = qtw.QApplication([])
     window = MainWindow()
-    # analyse(window)
     app.exec_()

@@ -7,9 +7,9 @@ from os import mkfifo, unlink
 import random
 import time
 from predict import prediction
-from tensorflow.Keras.models import load_model
+from tensorflow.keras.models import load_model
 
-from analyzer import Analyzer
+# from analyzer import Analyzer
 
 IMG_BOMB = qtg.QImage("./images/bug.png")
 IMG_FLAG = qtg.QImage("./images/flag.png")
@@ -249,7 +249,7 @@ class MainWindow(qtw.QMainWindow):
         # Sample rate, Duration of recording, model
         self.analyzer = {'fs':16000, 'seconds':1}
         self.model = load_model("models/86p_no_unk.h5")
-
+        
         self.timer = qtc.QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.setInterval(1000)
@@ -269,6 +269,7 @@ class MainWindow(qtw.QMainWindow):
         # cmd = resp[0]
         wavFile = sd.rec(self.analyzer['seconds'] * self.analyzer['fs'], samplerate=self.analyzer['fs'], channels=1, dtype='int16')
         sd.wait()
+    
         cmd = prediction(wavFile, self.model)
 
         self.assign(cmd)

@@ -12,7 +12,7 @@ from PIL import Image
 
 MODELS = ['78p_all_unk', '80p_prop_unk', '81p_no_unk', '83p_no_unk', '84p_no_unk', '85p_no_unk']
 MODEL = MODELS[1]
-model = keras.models.load_model('../models/'+MODEL+'.h5')
+model = keras.models.load_model('models/'+MODEL+'.h5')
 
 def get_wav_info(wav):
     frames = wav

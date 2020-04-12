@@ -14,7 +14,7 @@ seconds = 1  # Duration of recording
 model = keras.models.load_model("models/86p_no_unk.h5")
 
 # Given au audio track, predicts the output
-def prediction(myrecording):
+def prediction(myrecording, model):
     file = 'tmp/output.wav'
     write(file, fs, myrecording)  # Save as WAV file
     graph_spectrogram(file, 1)
@@ -46,4 +46,4 @@ while 1:
         out = rec_and_predict()
         print(out)
         inp = "idk"
-"""
+""" 

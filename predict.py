@@ -14,22 +14,19 @@ seconds = 1  # Duration of recording
 model = keras.models.load_model("models/86p_no_unk.h5")
 
 # Given au audio track, predicts the output
-def prediction(myrecording, unk=False):
-    if unk==True:
-        ## todo
-        print("Case with unknowns hasn't been handled yet")
-    else:
-        file = 'tmp/output.wav'
-        write(file, fs, myrecording)  # Save as WAV file
-        graph_spectrogram(file, 1)
-        im = cv2.imread('tmp/output.png', 0)
-        image = np.array([np.asarray(im)])
-        to_pred = image.reshape((1, 129, 124, 1))
-        # output = rd.choice(np.identity(11)[2:]) #ligne a supprimer une fois le réseau raccordé
-        output = model.predict(to_pred) #sort un vecteur de probas de taille 11
-        classes = ["no", "on", "go", "up", "stop", "off", "left", "right", "down", "yes"]
-        #commands = [('unknown',), ('no',), ('on',), ('go',), ('up', ), ('stop',), ('off', ), ('left',), ('right', ), ('down', ), ('yes', )]
-        out = classes[np.argmax(output)]
+def prediction(myrecording):
+    file = 'tmp/output.wav'
+    write(file, fs, myrecording)  # Save as WAV file
+    graph_spectrogram(file, 1)
+    im = cv2.imread('tmp/output.png', 0)
+    image = np.array([np.asarray(im)])
+    to_pred = image.reshape((1, 129, 124, 1))
+    # output = rd.choice(np.identity(11)[2:]) #ligne a supprimer une fois le réseau raccordé
+    output = model.predict(to_pred) #sort un vecteur de probas de taille 11
+    classes = ["no", "on", "go", "up", "stop", "off", "left", "right", "down", "yes", "<UNK>"]
+    #commands = [('unknown',), ('no',), ('on',), ('go',), ('up', ), ('stop',), ('off', ), ('left',), ('right', ), ('down', ), ('yes', )]
+    print(np.around(output[0], decimals=3))
+    out = classes[np.argmax(output)]
     return out
 
 # Records 1s of andio and then predicts

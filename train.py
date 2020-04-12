@@ -9,49 +9,7 @@ import random
 
 SHAPES = (129, 124)
 classes = ["no", "on", "go", "up", "stop", "off", "left", "right", "down", "yes","<UNK>"]
-
-# def load_data(path, nb_classes):
-#     images = []
-#     labels = []
-#     not_same = 0
-#     same = 0
-#     ims = glob.glob(path + '/*.png')
-#     random.shuffle(ims)
-#     nb_unk = 0
-#     for im in ims:
-#         if nb_unk<3100 or im.split('label')[1].split('_')[0] not in ['0']:
-#             if im.split('label')[1].split('_')[0] in ['0']:
-#                 nb_unk += 1
-#             image = cv2.imread(im, 0)
-#             if image.shape[0] != 129:
-#                 print("SHAPE0:", image.shape[0], im)
-#             if image.shape[1] != 124:
-#                 #print("SHAPE1:", image.shape[1], im)
-#                 not_same +=1
-#             else:
-#                 same += 1
-#                 img = np.asarray(cv2.imread(im, 0))
-#                 images.append(img)
-#                 lab = np.zeros((nb_classes,), dtype=int)
-#                 lab[int(im.split('label')[1].split('_')[0])] = 1
-#                 labels.append(lab)
-
-#                 #print(lab, im)
-
-#             if same%1000==0:
-#                 print(same, not_same)
-
-
-#     images = np.asarray(images)
-#     labels = np.asarray(labels)
-
-#     sep = -len(images)//10
-#     train_images = images[:sep].reshape(sep, 129, 124, 1)
-#     train_labels = labels[:sep]
-#     test_images = images[sep:].reshape(len(images[sep:]), 129, 124, 1)
-#     test_labels = labels[sep:]
-
-#     return train_images, train_labels, test_images, test_labels
+nb_classes = 11
 
 def load_data(path, nb_classes):
     images = []
@@ -61,7 +19,13 @@ def load_data(path, nb_classes):
     ims = glob.glob(path + '/*.png')
     random.shuffle(ims)
     count_class = {"0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+    if nb_classes==11:
+        count_class["10"] = 0
     for im in ims:
+        if nb_classes!=11 or im.split('\\')[-1][0]!="l" or count_class["10"] < 3800:
+            if im.split('\\')[-1][0]=="l":
+                count_class["10"] += 1
+                print(count_class["10"])
             image = cv2.imread(im, 0)
             if image.shape[0] != 129:
                 print("SHAPE0:", image.shape[0], im)
@@ -72,17 +36,23 @@ def load_data(path, nb_classes):
                 same += 1
                 img = np.asarray(image)
                 images.append(img)
-                lab = [0,0,0,0,0,0,0,0,0,0]
-                lbl = int(im.split('\\')[-1].split('_')[0])
-                lab[lbl] = 1
+                if nb_classes==11:
+                    lab = [0,0,0,0,0,0,0,0,0,0,0]
+                else:
+                    lab = [0,0,0,0,0,0,0,0,0,0]
+                if im.split('\\')[-1][0]=="l":
+                    lab[-1] = 1
+                else:
+                    lbl = int(im.split('\\')[-1].split('_')[0])
+                    lab[lbl] = 1
+                    count_class[str(lbl)] += 1
                 lab = np.asarray(lab)
-                count_class[str(lbl)] += 1
                 labels.append(lab)
 
-                #print(lab, im)
+            #print(lab, im)
 
-            if same%1000==0:
-                print(same, not_same)
+        if same%1000==0:
+            print(same, not_same)
 
 
     images = np.asarray(images)
@@ -101,7 +71,7 @@ def load_data(path, nb_classes):
 
 
 
-train_images, train_labels, test_images, test_labels = load_data('spectro_F', 10)
+train_images, train_labels, test_images, test_labels = load_data('spectro_F', nb_classes)
 print(len(train_images),len(train_labels),len(test_images),len(test_labels))
 
 model = Sequential()
@@ -124,7 +94,7 @@ model.add(BatchNormalization())
 model.add(Dropout(rate=0.15))
 model.add(Dense(54, activation='relu'))
 model.add(BatchNormalization())
-model.add(Dense(10, activation='softmax'))
+model.add(Dense(nb_classes, activation='softmax'))
 
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 

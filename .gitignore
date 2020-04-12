@@ -8,3 +8,5 @@ old/
 tests_Felix/
 *.pyc
 spectro_F/
+lab.py
+labelise.py

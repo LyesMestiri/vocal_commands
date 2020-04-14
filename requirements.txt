@@ -1,11 +1,9 @@
 numpy
 opencv-python
-pyqt5
+pyqt5>=5.6
 sounddevice
 matplotlib
 scipy
 Pillow
 tensorflow
-opencv-python
-PyQt5>=5.6
 sip
